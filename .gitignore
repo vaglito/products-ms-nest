@@ -57,3 +57,5 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 dev.sqlite3
 db.sqlite3
+dev.db
+dev.db-journal
