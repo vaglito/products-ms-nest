@@ -2,10 +2,10 @@ import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaClient } from '@prisma/client';
+import { PaginationDto } from 'src/common';
 
 @Injectable()
 export class ProductsService extends PrismaClient implements OnModuleInit {
-
   private readonly logger = new Logger('ProductsService');
 
   async onModuleInit() {
@@ -19,8 +19,23 @@ export class ProductsService extends PrismaClient implements OnModuleInit {
     });
   }
 
-  findAll() {
-    return this.product.findMany();
+  async findAll(paginationDto: PaginationDto) {
+    const { page, limit } = paginationDto;
+
+    const totalPages = await this.product.count();
+    const maxPage = Math.ceil(totalPages / limit);
+
+    return {
+      meta: {
+        total: totalPages,
+        page: page,
+        maxPage: maxPage,
+      },
+      data: await this.product.findMany({
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+    };
   }
 
   findOne(id: number) {
